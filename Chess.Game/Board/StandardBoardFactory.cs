@@ -34,7 +34,7 @@ namespace Chess.Game.Board
                     squares[rank - 1, file - 1] = new Location
                     {
                         Rank = rank,
-                        File = file
+                        File = (Files) file
                     };
                 }
             }

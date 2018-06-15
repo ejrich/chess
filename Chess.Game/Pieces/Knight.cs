@@ -8,12 +8,7 @@ namespace Chess.Game.Pieces
         public Color Color { get; set; }
         public Location Location { get; set; }
 
-        public void Move(Location location)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IList<Location> LegalMoves()
+        public IList<Location> GetLegalMoves(Files file, int rank)
         {
             throw new NotImplementedException();
         }

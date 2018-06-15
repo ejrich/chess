@@ -5,17 +5,23 @@ namespace Chess.Game.Pieces
 {
     public class Pawn : IPiece
     {
+        private bool _moved = false;
+        private int _multiplier => Color == Color.White ? 1 : -1;
+
         public Color Color { get; set; }
-        public Location Location { get; set; }
 
-        public void Move(Location location)
+        public IList<Location> GetLegalMoves(Location currentLocation)
         {
-            throw new NotImplementedException();
-        }
+            var legalMoves = new List<Location>();
+            if (Color == Color.White)
+            {
+                if (currentLocation.Forward != null && currentLocation.Forward.CurrentColor == null)
+                {
 
-        public IList<Location> LegalMoves()
-        {
-            throw new NotImplementedException();
+                }
+            }
+
+            return legalMoves;
         }
     }
 }
