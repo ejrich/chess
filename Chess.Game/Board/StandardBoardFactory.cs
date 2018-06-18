@@ -11,27 +11,24 @@ namespace Chess.Game.Board
 
         public ChessBoard CreateBoard()
         {
-            var squares = InitializeBoard();
-
             _board = new ChessBoard
             {
-                Squares = squares
+                Squares = new Location[BoardSize, BoardSize]
             };
 
+            InitializeBoard();
             InitializePieces();
 
             return _board;
         }
 
-        private static Location[,] InitializeBoard()
+        private void InitializeBoard()
         {
-            var squares = new Location[BoardSize, BoardSize];
-
             for (var rank = 1; rank <= BoardSize; rank++)
             {
                 for (var file = 1; file <= BoardSize; file++)
                 {
-                    squares[rank - 1, file - 1] = new Location
+                    _board.Squares[file - 1, rank - 1] = new Location
                     {
                         Rank = rank,
                         File = (Files) file
@@ -39,7 +36,27 @@ namespace Chess.Game.Board
                 }
             }
 
-            return squares;
+            for (var rank = 1; rank <= BoardSize; rank++)
+            {
+                for (var file = 1; file <= BoardSize; file++)
+                {
+                    InitializeAdjacentSquares(file, rank);
+                }
+            }
+        }
+
+        private void InitializeAdjacentSquares(int file, int rank)
+        {
+            var square = _board.GetLocation((Files) file, rank);
+
+            if (file > 1)
+                square.Left = _board.GetLocation((Files) file - 1, rank);
+            if (file < BoardSize)
+                square.Right = _board.GetLocation((Files) file + 1, rank);
+            if (rank > 1)
+                square.Back = _board.GetLocation((Files) file, rank - 1);
+            if (rank < BoardSize)
+                square.Forward = _board.GetLocation((Files) file, rank + 1);
         }
 
         private void InitializePieces()

@@ -1,12 +1,11 @@
 ﻿using Chess.Game.Board;
-using Chess.Game.Pieces;
 
 namespace Chess.Game
 {
     public class Game
     {
         private readonly IBoardFactory _boardFactory;
-        private ChessBoard _chessBoard;
+        private readonly ChessBoard _chessBoard;
 
         public Game(IBoardFactory boardFactory)
         {
@@ -19,32 +18,36 @@ namespace Chess.Game
         public Player Black { get; set; }
         public Color Turn { get; set; }
 
-        public bool TakeTurn(Location current, Location newLocation)
+        public bool TakeTurn(Files currentFile, int currentRank, Files newFile, int newRank)
         {
-            var piece = _chessBoard.GetLocation(current.File, current.Rank).Piece;
+            var currentLocation = _chessBoard.GetLocation(currentFile, currentRank);
+            var newLocation = _chessBoard.GetLocation(newFile, newRank);
+            var piece = currentLocation.Piece;
 
-            if (piece == null)
+            if (piece== null)
                 return false;
 
-            var isLegal = DetermineMoveIsLegal(piece, current, newLocation);
+            var isLegal = piece.IsMoveLegal(currentLocation, newLocation);
 
             if (isLegal)
             {
-                _chessBoard.SetLocation(null, current.File, current.Rank);
-                _chessBoard.SetLocation(piece, newLocation.File, newLocation.Rank);
+                _chessBoard.SetLocation(null, currentFile, currentRank);
+                _chessBoard.SetLocation(piece, newFile, newRank);
+                piece.Moved = true;
             }
 
             return isLegal;
         }
 
-        private static bool DetermineMoveIsLegal(IPiece piece, Location current, Location newLocation)
-        {
-            if (piece.Color == newLocation.CurrentColor)
-                return false;
+        //private static bool DetermineMoveIsLegal(IPiece piece, Location current, Location newLocation)
+        //{
+        //    if (piece.Color == newLocation.CurrentColor)
+        //        return false;
 
-            var legalMoves = piece.GetLegalMoves(current.File, current.Rank);
+        //    return piece.IsMoveLegal(current, newLocation);
+        //    //var legalMoves = piece.GetLegalMoves(current.File, current.Rank);
 
-            return legalMoves.Contains(newLocation);
-        }
+        //    //return legalMoves.Contains(newLocation);
+        //}
     }
 }

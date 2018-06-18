@@ -13,7 +13,16 @@ namespace Chess.Game.Tests
             var game = new Game(new StandardBoardFactory());
             Console.WriteLine(game);
 
-            game.TakeTurn(new Location {File = Files.a, Rank = 1}, new Location {File = Files.a, Rank = 4});
+            game.TakeTurn(Files.d, 2, Files.d, 3);
+            //game.TakeTurn(Files.a, 1, Files.a, 4);
+            //game.TakeTurn(Files.a, 1, Files.a, 3);
+            //game.TakeTurn(Files.a, 3, Files.a, 5);
+            //game.TakeTurn(Files.a, 3, Files.d, 3);
+            //game.TakeTurn(Files.d, 3, Files.b, 3);
+            //game.TakeTurn(Files.b, 1, Files.c, 3);
+            //game.TakeTurn(Files.c, 3, Files.c, 5);
+            game.TakeTurn(Files.c, 1, Files.a, 3);
+            game.TakeTurn(Files.c, 1, Files.g, 5);
         }
     }
 }

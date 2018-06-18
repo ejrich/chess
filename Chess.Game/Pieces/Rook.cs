@@ -1,31 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Chess.Game.Pieces
 {
     public class Rook : IPiece
     {
+        public bool Moved { get; set; }
         public Color Color { get; set; }
 
-        public IList<Location> GetLegalMoves(Files file, int rank)
+        public IList<Location> GetLegalMoves(Location currentLocation)
         {
-            var legalMoves = Enumerable.Range(1, 8).Where(_ => _ != rank).Select(_ => new Location
+            throw new NotImplementedException();
+        }
+
+        public bool IsMoveLegal(Location current, Location newLocation)
+        {
+            if (newLocation.CurrentColor == Color)
+                return false;
+
+            if (current.File != newLocation.File && current.Rank != newLocation.Rank)
+                return false;
+
+            var legal = true;
+
+            if (current.File != newLocation.File)
             {
-                File = file,
-                Rank = _
-            }).ToList();
-
-            var horizontalMoves = Enum.GetValues(typeof(Files)).Cast<Files>().Where(_ => _ != file)
-                .Select(_ => new Location
+                if (newLocation.File > current.File)
                 {
-                    File = _,
-                    Rank = rank
-                }).ToList();
+                    var location = current.Right;
+                    while (location != newLocation && legal)
+                    {
+                        if (location.CurrentColor != null)
+                            legal = false;
+                        else
+                            location = location.Right;
+                    }
+                }
+                else
+                {
+                    var location = current.Left;
+                    while (location != newLocation && legal)
+                    {
+                        if (location.CurrentColor != null)
+                            legal = false;
+                        else
+                            location = location.Left;
+                    }
+                }
+            }
+            else
+            {
+                if (newLocation.Rank > current.Rank)
+                {
+                    var location = current.Forward;
+                    while (location != newLocation && legal)
+                    {
+                        if (location.CurrentColor != null)
+                            legal = false;
+                        else
+                            location = location.Forward;
+                    }
+                }
+                else
+                {
+                    var location = current.Back;
+                    while (location != newLocation && legal)
+                    {
+                        if (location.CurrentColor != null)
+                            legal = false;
+                        else
+                            location = location.Back;
+                    }
+                }
+            }
 
-            legalMoves.AddRange(horizontalMoves);
-
-            return legalMoves;
+            return legal;
         }
     }
 }
