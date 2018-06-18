@@ -24,7 +24,7 @@ namespace Chess.Game
             var newLocation = _chessBoard.GetLocation(newFile, newRank);
             var piece = currentLocation.Piece;
 
-            if (piece== null)
+            if (piece == null)
                 return false;
 
             var isLegal = piece.IsMoveLegal(currentLocation, newLocation);
@@ -38,16 +38,5 @@ namespace Chess.Game
 
             return isLegal;
         }
-
-        //private static bool DetermineMoveIsLegal(IPiece piece, Location current, Location newLocation)
-        //{
-        //    if (piece.Color == newLocation.CurrentColor)
-        //        return false;
-
-        //    return piece.IsMoveLegal(current, newLocation);
-        //    //var legalMoves = piece.GetLegalMoves(current.File, current.Rank);
-
-        //    //return legalMoves.Contains(newLocation);
-        //}
     }
 }

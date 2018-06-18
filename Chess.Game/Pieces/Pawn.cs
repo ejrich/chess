@@ -43,13 +43,16 @@ namespace Chess.Game.Pieces
             {
                 if (rankChange == 1)
                 {
-                    legal = newLocation.CurrentColor != null && newLocation.CurrentColor != Color;
+                    if (Color == Color.White && newLocation.Rank > current.Rank ||
+                        Color == Color.Black && newLocation.Rank < current.Rank)
+                    {
+                        legal = newLocation.CurrentColor != null && newLocation.CurrentColor != Color;
+                    }
                 }
                 // TODO Add en passant
             }
 
             return legal;
         }
-
     }
 }
