@@ -16,7 +16,7 @@ namespace Chess.Game
 
         public Player White { get; set; }
         public Player Black { get; set; }
-        public Color Turn { get; set; }
+        public Color Turn { get; set; } = Color.White;
 
         public bool TakeTurn(Files currentFile, int currentRank, Files newFile, int newRank)
         {
@@ -24,7 +24,7 @@ namespace Chess.Game
             var newLocation = _chessBoard.GetLocation(newFile, newRank);
             var piece = currentLocation.Piece;
 
-            if (piece == null)
+            if (piece == null || piece.Color != Turn)
                 return false;
 
             var isLegal = piece.IsMoveLegal(currentLocation, newLocation);
@@ -34,6 +34,7 @@ namespace Chess.Game
                 _chessBoard.SetLocation(null, currentFile, currentRank);
                 _chessBoard.SetLocation(piece, newFile, newRank);
                 piece.Moved = true;
+                Turn = Turn == Color.White ? Color.Black : Color.White;
             }
 
             return isLegal;

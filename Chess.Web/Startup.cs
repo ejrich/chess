@@ -1,6 +1,8 @@
+using Chess.Web.Dal;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +21,8 @@ namespace Chess.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            services.AddDbContext<GameContext>(options => options.UseInMemoryDatabase("5dafbe98-2b52-48c4-994e-9845751d5919"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
