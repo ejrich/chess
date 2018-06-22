@@ -59,7 +59,11 @@ export const actionCreators = {
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
-const unloadedState: Board = { squares: [[]] };
+let squares = Array(8);
+for (let i in squares) {
+    squares[i] = Array(8)
+}
+const unloadedState: Board = { squares };
 
 export const reducer: Reducer<Board> = (state: Board, incomingAction: Action) => {
     const action = incomingAction as KnownAction;
