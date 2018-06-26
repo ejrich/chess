@@ -15,7 +15,7 @@ export class NavMenu extends React.Component<{}, {}> {
                     <Link className='navbar-brand' to={ '/' }>Chess</Link>
                 </div>
                 <div className='clearfix'></div>
-                <div className='navbar-collapse collapse'>
+                {/* <div className='navbar-collapse collapse'>
                     <ul className='nav navbar-nav'>
                         <li>
                             <NavLink to={ '/counter' } activeClassName='active'>
@@ -28,7 +28,7 @@ export class NavMenu extends React.Component<{}, {}> {
                             </NavLink>
                         </li>
                     </ul>
-                </div>
+                </div> */}
             </div>
         </div>;
     }

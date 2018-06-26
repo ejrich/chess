@@ -1,9 +1,17 @@
 import { fetch, addTask } from 'domain-task';
 import { Action, Reducer, ActionCreator } from 'redux';
 import { AppThunkAction } from './';
+import IPiece from '../pieces/IPiece';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
+
+export interface GameState {
+    board?: Board;
+    pendingMove?: Location;
+    move?: Location;
+    // TODO add players
+}
 
 export interface Board {
     squares: Location[][];
@@ -12,11 +20,7 @@ export interface Board {
 export interface Location {
     file: number;
     rank: number;
-    piece?: Piece;
-}
-
-export interface Piece {
-    name: string;
+    piece?: IPiece;
 }
 
 // -----------------
@@ -25,6 +29,8 @@ export interface Piece {
 
 const InitializeGameAction = 'INITIALIZE_GAME';
 const GameInitializedAction = 'GAME_INITIALIZED';
+const BeginMoveAction = 'BEGIN_MOVE';
+const CompleteMoveAction = 'COMPLETE_MOVE';
 
 interface InitializeGame {
     type: 'INITIALIZE_GAME';
@@ -35,9 +41,19 @@ interface GameInitialized {
     board: Board; 
 }
 
+interface BeginMove {
+    type: 'BEGIN_MOVE';
+    location: Location; 
+}
+
+interface CompleteMove {
+    type: 'COMPLETE_MOVE';
+    location: Location; 
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = InitializeGame | GameInitialized;
+type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -46,32 +62,52 @@ type KnownAction = InitializeGame | GameInitialized;
 export const actionCreators = {
     InitializeGame: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         let fetchTask = fetch(`api/game`)
-            .then(response => response.json() as Promise<Board>)
+            .then(response => response.json() as Promise<any>)
             .then(data => {
+                const board = boardFactory.createBoard(data);
                 dispatch({ type: GameInitializedAction, board: data });
             });
 
         addTask(fetchTask); // Ensure server-side prerendering waits for this to complete
         dispatch({ type: InitializeGameAction });
-    }
+    },
+
+    PendingMove: (location: Location) => <BeginMove>{ type: BeginMoveAction, location },
+
+    FinishMove: (location: Location) => <CompleteMove>{ type: CompleteMoveAction, location }
 };
+
+const createBoard: (data: any) => {
+
+}
 
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
-let squares = Array(8);
-for (let i in squares) {
-    squares[i] = Array(8)
-}
-const unloadedState: Board = { squares };
+const unloadedState: GameState = { 
+    board: undefined
+};
 
-export const reducer: Reducer<Board> = (state: Board, incomingAction: Action) => {
+export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Action) => {
     const action = incomingAction as KnownAction;
     switch (action.type) {
         case InitializeGameAction:
             return unloadedState;
         case GameInitializedAction:
-            return action.board;
+            return {
+                ...state,
+                board: action.board
+            };
+        case BeginMoveAction:
+            return {
+                ...state,
+                pendingMove: action.location
+            };
+        case CompleteMoveAction:
+            return {
+                ...state,
+                move: action.location
+            };
         default:
             // The following line guarantees that every action in the KnownAction union has been covered by a case above
             const exhaustiveCheck: never = action;

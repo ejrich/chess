@@ -13,7 +13,7 @@ namespace Chess.Game.Board
         {
             _board = new ChessBoard
             {
-                Squares = new Location[BoardSize, BoardSize]
+                Squares = new Location[BoardSize][]
             };
 
             InitializeBoard();
@@ -24,11 +24,12 @@ namespace Chess.Game.Board
 
         private void InitializeBoard()
         {
-            for (var rank = 1; rank <= BoardSize; rank++)
+            for (var file = 1; file <= BoardSize; file++)
             {
-                for (var file = 1; file <= BoardSize; file++)
+                _board.Squares[file - 1] = new Location[BoardSize];
+                for (var rank = 1; rank <= BoardSize; rank++)
                 {
-                    _board.Squares[file - 1, rank - 1] = new Location
+                    _board.Squares[file - 1][rank - 1] = new Location
                     {
                         Rank = rank,
                         File = (Files) file
@@ -36,9 +37,9 @@ namespace Chess.Game.Board
                 }
             }
 
-            for (var rank = 1; rank <= BoardSize; rank++)
+            for (var file = 1; file <= BoardSize; file++)
             {
-                for (var file = 1; file <= BoardSize; file++)
+                for (var rank = 1; rank <= BoardSize; rank++)
                 {
                     InitializeAdjacentSquares(file, rank);
                 }

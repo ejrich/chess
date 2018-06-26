@@ -6,7 +6,7 @@ import * as Game from './Game';
 export interface ApplicationState {
     counter: Counter.CounterState;
     weatherForecasts: WeatherForecasts.WeatherForecastsState;
-    game: Game.Board
+    game: Game.GameState
 }
 
 // Whenever an action is dispatched, Redux will update each top-level application state property using
