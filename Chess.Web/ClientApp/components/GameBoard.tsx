@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState }  from '../store';
 import { Board, Location, actionCreators, GameState } from '../store/Game';
-import File from './File'
 
 type GameBoardProps = GameState & typeof actionCreators;
 
@@ -11,6 +10,15 @@ const blackSquareStyle = {
 }
 
 class GameBoard extends React.Component<GameBoardProps, {}> {
+
+    private handleMove(location: Location) {
+        if (!this.props.pendingMove) {
+            this.props.PendingMove(location);
+        }
+        else {
+            this.props.FinishMove(location);
+        }
+    }
 
     public render() {
         const { board } = this.props;
@@ -31,8 +39,33 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
     }
 
     private renderRanks(squares: Location[][]) {
+        const ranks = [];
+
+        const startRank = 8;
+        const endRank = 1;
+        const startFile = 1;
+        const endFile = 8;
+
+        for (let rank = startRank; rank >= endRank; rank--) {
+            const row = [];
+            for (let file = startFile; file <= endFile; file++) {
+               const square = this.renderSquare(squares[file - 1][rank - 1]);
+               row.push(square);
+            }
+            ranks.push(<div key={rank}>{ row }</div>);
+        }
+
+        return ranks;
+    }
+
+    private renderSquare(location: Location) {
+        const style = this.getStyle(location);
+
         return (
-            squares.map((file, i) => <File squares={file} file={i} />)
+            <div className="square" style={style} onClick={() => this.handleMove(location)} key={location.file}>
+                { location.file }, { location.rank }
+                { location.piece ? location.piece.constructor.name : "" }
+            </div>
         );
     }
 

@@ -2,6 +2,7 @@ import { fetch, addTask } from 'domain-task';
 import { Action, Reducer, ActionCreator } from 'redux';
 import { AppThunkAction } from './';
 import IPiece from '../pieces/IPiece';
+import { createPiece } from '../pieces/PieceFactory';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -9,7 +10,6 @@ import IPiece from '../pieces/IPiece';
 export interface GameState {
     board?: Board;
     pendingMove?: Location;
-    move?: Location;
     // TODO add players
 }
 
@@ -64,8 +64,8 @@ export const actionCreators = {
         let fetchTask = fetch(`api/game`)
             .then(response => response.json() as Promise<any>)
             .then(data => {
-                const board = boardFactory.createBoard(data);
-                dispatch({ type: GameInitializedAction, board: data });
+                const board = createBoard(data);
+                dispatch({ type: GameInitializedAction, board });
             });
 
         addTask(fetchTask); // Ensure server-side prerendering waits for this to complete
@@ -77,8 +77,24 @@ export const actionCreators = {
     FinishMove: (location: Location) => <CompleteMove>{ type: CompleteMoveAction, location }
 };
 
-const createBoard: (data: any) => {
+function createBoard(data: any): Board {
+    const squares = (<any[][]>data.squares).map(file => {
+        return file.map(square => {
+            const piece = square.piece ? createPiece(square.piece.name, square.piece.moved, square.piece.color) : undefined;
 
+            return <Location>{
+                file: square.file,
+                rank: square.rank,
+                piece
+            }
+        });
+    });
+
+    const board = {
+        squares
+    }
+
+    return board;
 }
 
 // ----------------

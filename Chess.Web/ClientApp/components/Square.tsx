@@ -24,7 +24,7 @@ class Square extends React.Component<SquareProps, {}> {
         return (
             <div className="square" style={style}>
                 { location.file }, { location.rank }
-                { location.piece ? location.piece.name : "" }
+                { location.piece ? location.piece.constructor.name : "" }
             </div>
         );
     }
