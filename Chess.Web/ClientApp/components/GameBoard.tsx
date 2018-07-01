@@ -6,16 +6,16 @@ import { Board, Location, actionCreators, GameState } from '../store/Game';
 type GameBoardProps = GameState & typeof actionCreators;
 
 const blackSquareStyle = {
-    background: "black"
+    background: "#769656"
 }
 
 class GameBoard extends React.Component<GameBoardProps, {}> {
 
     private handleMove(location: Location) {
-        if (!this.props.pendingMove) {
+        if (!this.props.pendingMove && location.piece && location.piece.color == this.props.turn) {
             this.props.PendingMove(location);
         }
-        else {
+        else if (this.props.pendingMove) {
             this.props.FinishMove(location);
         }
     }
@@ -63,8 +63,7 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
 
         return (
             <div className="square" style={style} onClick={() => this.handleMove(location)} key={location.file}>
-                { location.file }, { location.rank }
-                { location.piece ? location.piece.constructor.name : "" }
+                { location.piece ? <div><img src={require(`../pieces/images/${location.piece.getImageName()}.png`)} /></div> : <div/> }
             </div>
         );
     }

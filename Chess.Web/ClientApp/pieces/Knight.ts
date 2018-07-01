@@ -12,8 +12,21 @@ class Knight implements IPiece {
     }
 
     isMoveLegal(current: Location, newLocation: Location, board: Location[][]) {
-        return true;
+        if (newLocation.piece && newLocation.piece.color == this.color)
+            return false;
+
+        const fileChange = Math.abs(newLocation.file - current.file);
+        const rankChange = Math.abs(newLocation.rank - current.rank);
+
+        return fileChange == 2 && rankChange == 1 ||
+                fileChange == 1 && rankChange == 2;
     };
+
+    getImageName() {
+        const image = this.color == Color.White ? "white_knight" : "black_knight";
+
+        return image;
+    }
 }
 
 export default Knight;

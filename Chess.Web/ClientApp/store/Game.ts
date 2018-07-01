@@ -3,6 +3,7 @@ import { Action, Reducer, ActionCreator } from 'redux';
 import { AppThunkAction } from './';
 import IPiece from '../pieces/IPiece';
 import { createPiece } from '../pieces/PieceFactory';
+import Color from '../pieces/Color';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -10,6 +11,7 @@ import { createPiece } from '../pieces/PieceFactory';
 export interface GameState {
     board?: Board;
     pendingMove?: Location;
+    turn: Color
     // TODO add players
 }
 
@@ -101,7 +103,8 @@ function createBoard(data: any): Board {
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: GameState = { 
-    board: undefined
+    board: undefined,
+    turn: Color.White
 };
 
 export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Action) => {
@@ -112,7 +115,8 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
         case GameInitializedAction:
             return {
                 ...state,
-                board: action.board
+                board: action.board,
+                turn: Color.White
             };
         case BeginMoveAction:
             return {
@@ -120,10 +124,26 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 pendingMove: action.location
             };
         case CompleteMoveAction:
-            return {
-                ...state,
-                move: action.location
-            };
+            let { board, pendingMove, turn } = state;
+            if (board && pendingMove && pendingMove.piece) {
+                const { squares } = board;
+
+                const legal = pendingMove.piece.isMoveLegal(pendingMove, action.location, squares);
+
+                if (legal) {
+                    pendingMove.piece.moved = true;
+                    squares[action.location.file - 1][action.location.rank - 1].piece = pendingMove.piece;
+                    squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
+                    turn = turn == Color.White ? Color.Black : Color.White;
+                }
+                return {
+                    board: {
+                        squares
+                    },
+                    turn
+                }
+            }
+            break;
         default:
             // The following line guarantees that every action in the KnownAction union has been covered by a case above
             const exhaustiveCheck: never = action;

@@ -2,6 +2,8 @@
     width: 100px;
     height: 100px;
     display: inline-block;
+    text-align: center;
+    padding: 2%;
 }
 
 .main-nav li .glyphicon {
