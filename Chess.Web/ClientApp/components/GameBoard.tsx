@@ -52,7 +52,7 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
                const square = this.renderSquare(squares[file - 1][rank - 1]);
                row.push(square);
             }
-            ranks.push(<div key={rank}>{ row }</div>);
+            ranks.push(<div className="rank" key={rank}>{ row }</div>);
         }
 
         return ranks;

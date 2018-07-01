@@ -17,7 +17,6 @@ class Game extends React.Component<GameProps, {}> {
         return (
             <div>
                 <h1>Chess Game</h1>
-                <p>WIP</p>
                 <button className="btn" onClick={InitializeGame}>New Game</button>
                 <br/><br/>
                 <GameBoard />
