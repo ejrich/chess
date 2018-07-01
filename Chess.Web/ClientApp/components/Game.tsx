@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { ApplicationState }  from '../store';
 import { GameState, actionCreators } from '../store/Game';
 import GameBoard from './GameBoard';
+import Color from '../pieces/Color';
 
 type GameProps =
     GameState & typeof actionCreators
@@ -12,13 +13,16 @@ type GameProps =
 class Game extends React.Component<GameProps, {}> {
 
     public render() {
-        const { board, InitializeGame } = this.props;
+        const { board, turn, InitializeGame } = this.props;
 
         return (
             <div>
                 <h1>Chess Game</h1>
                 <button className="btn" onClick={InitializeGame}>New Game</button>
-                <br/><br/>
+                <br/>
+                {   
+                    board ? <p>{ turn == Color.White ? "White" : "Black" }'s Turn</p> : <br/>
+                }
                 <GameBoard />
             </div>
         );
