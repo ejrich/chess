@@ -16,7 +16,12 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
             this.props.PendingMove(location);
         }
         else if (this.props.pendingMove) {
-            this.props.FinishMove(location);
+            if (location.piece && location.piece.color == this.props.turn) {
+                this.props.PendingMove(location);
+            }
+            else {
+                this.props.FinishMove(location);
+            }
         }
     }
 
