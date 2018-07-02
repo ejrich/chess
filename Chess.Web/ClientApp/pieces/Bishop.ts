@@ -13,7 +13,10 @@ class Bishop implements IPiece {
     }
 
     isMoveLegal(current: Location, newLocation: Location, board: Location[][]) {
-        const legal = isDiagonalMoveLegal(this.color, current, newLocation, board);
+        if (newLocation.piece && newLocation.piece.color == this.color)
+            return false;
+
+        const legal = isDiagonalMoveLegal(current, newLocation, board);
 
         return legal;
     };

@@ -1,76 +1,33 @@
 import { Location } from '../store/Game';
-import Color from './Color';
 
 const same = (num: number) => num;
 const decrement = (num: number) => num - 1;
 const decrementTwice = (num: number) => num - 2;
 
-export function isStraightMoveLegal(color: Color, current: Location, newLocation: Location, board: Location[][]): boolean {
-    if (newLocation.piece && newLocation.piece.color == color)
-        return false;
-
+export function isStraightMoveLegal(current: Location, newLocation: Location, board: Location[][]): boolean {
     const fileChange = Math.abs(newLocation.file - current.file);
     const rankChange = Math.abs(newLocation.rank - current.rank);
 
     if (fileChange > 0 && rankChange > 0)
         return false;
 
-    if (fileChange > 0)
-    {
-        if (newLocation.file > current.file)
-        {
-            return moveIterator(current, newLocation, board, same, decrement);
-        }
-        else
-        {
-            return moveIterator(current, newLocation, board, decrementTwice, decrement);
-        }
-    }
-    else
-    {
-        if (newLocation.rank > current.rank)
-        {
-            return moveIterator(current, newLocation, board, decrement, same);
-        }
-        else
-        {
-            return moveIterator(current, newLocation, board, decrement, decrementTwice);
-        }
-    }
+    const fileMove = fileChange > 0 ? newLocation.file > current.file ? same : decrementTwice : decrement;
+    const rankMove = rankChange > 0 ? newLocation.rank > current.rank ? same : decrementTwice : decrement;
+
+    return moveIterator(current, newLocation, board, fileMove, rankMove);
 }
 
-export function isDiagonalMoveLegal(color: Color, current: Location, newLocation: Location, board: Location[][]): boolean {
-    if (newLocation.piece && newLocation.piece.color == color)
-        return false;
-
+export function isDiagonalMoveLegal(current: Location, newLocation: Location, board: Location[][]): boolean {
     const fileChange = Math.abs(newLocation.file - current.file);
     const rankChange = Math.abs(newLocation.rank - current.rank);
 
     if (fileChange != rankChange)
         return false;
 
-    if (newLocation.rank > current.rank)
-    {
-        if (newLocation.file > current.file)
-        {
-            return moveIterator(current, newLocation, board, same, same);
-        }
-        else
-        {
-            return moveIterator(current, newLocation, board, decrementTwice, same);
-        }
-    }
-    else
-    {
-        if (newLocation.file > current.file)
-        {
-            return moveIterator(current, newLocation, board, same, decrementTwice);
-        }
-        else
-        {
-            return moveIterator(current, newLocation, board, decrementTwice, decrementTwice);
-        }
-    }
+    const fileMove = newLocation.file > current.file ? same : decrementTwice;
+    const rankMove = newLocation.rank > current.rank ? same : decrementTwice;
+
+    return moveIterator(current, newLocation, board, fileMove, rankMove);
 }
 
 function moveIterator(current: Location, newLocation: Location, board: Location[][], fileChange: Function, rankChange: Function): boolean {

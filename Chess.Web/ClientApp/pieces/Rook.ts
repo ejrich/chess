@@ -13,7 +13,10 @@ class Rook implements IPiece {
     }
 
     isMoveLegal(current: Location, newLocation: Location, board: Location[][]) {
-        const legal = isStraightMoveLegal(this.color, current, newLocation, board);
+        if (newLocation.piece && newLocation.piece.color == this.color)
+            return false;
+
+        const legal = isStraightMoveLegal(current, newLocation, board);
 
         return legal;
     };
