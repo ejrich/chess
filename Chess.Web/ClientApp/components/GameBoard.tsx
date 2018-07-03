@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState }  from '../store';
 import { Location, actionCreators, GameState } from '../store/Game';
-import { isCastle, isPromotion } from '../pieces/SpecialMoves';
+import { isCastle, isEnPassant, isPromotion } from '../pieces/SpecialMoves';
 
 type GameBoardProps = GameState & typeof actionCreators;
 
@@ -26,6 +26,9 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
             }
             if (isPromotion(pendingMove, location, board.squares)) {
                 Promotion(location);
+            }
+            if (isEnPassant(pendingMove, location, board.squares)) {
+                // EnPassant(location);
             }
             else if (location.piece && location.piece.color == turn) {
                 PendingMove(location);
