@@ -1,7 +1,7 @@
 import { fetch, addTask } from 'domain-task';
 import { Action, Reducer, ActionCreator } from 'redux';
 import { AppThunkAction } from './';
-import IPiece from '../pieces/IPiece';
+import Piece from '../pieces/Piece';
 import { createPiece } from '../pieces/PieceFactory';
 import Color from '../pieces/Color';
 
@@ -22,7 +22,7 @@ export interface Board {
 export interface Location {
     file: number;
     rank: number;
-    piece?: IPiece;
+    piece?: Piece;
 }
 
 // -----------------
@@ -33,6 +33,7 @@ const InitializeGameAction = 'INITIALIZE_GAME';
 const GameInitializedAction = 'GAME_INITIALIZED';
 const BeginMoveAction = 'BEGIN_MOVE';
 const CompleteMoveAction = 'COMPLETE_MOVE';
+const CastleAction = 'CASTLE';
 
 interface InitializeGame {
     type: 'INITIALIZE_GAME';
@@ -53,9 +54,14 @@ interface CompleteMove {
     location: Location; 
 }
 
+interface Castle {
+    type: 'CASTLE';
+    location: Location; 
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove;
+type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -76,7 +82,9 @@ export const actionCreators = {
 
     PendingMove: (location: Location) => <BeginMove>{ type: BeginMoveAction, location },
 
-    FinishMove: (location: Location) => <CompleteMove>{ type: CompleteMoveAction, location }
+    FinishMove: (location: Location) => <CompleteMove>{ type: CompleteMoveAction, location },
+
+    Castle: (location: Location) => <Castle>{ type: CastleAction, location }
 };
 
 function createBoard(data: any): Board {
@@ -124,7 +132,7 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 pendingMove: action.location
             };
         case CompleteMoveAction:
-            let { board, pendingMove, turn } = state;
+            var { board, pendingMove, turn } = state;
             if (board && pendingMove && pendingMove.piece) {
                 const { squares } = board;
 
@@ -136,6 +144,38 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                     squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
                     turn = turn == Color.White ? Color.Black : Color.White;
                 }
+                return {
+                    board: {
+                        squares
+                    },
+                    turn
+                }
+            }
+            break;
+        case CastleAction:
+            var { board, pendingMove, turn } = state;
+            if (board && pendingMove && pendingMove.piece && action.location.piece) {
+                const { squares } = board;
+
+                pendingMove.piece.moved = true;
+                action.location.piece.moved = true;
+
+                const fileChange = action.location.file - pendingMove.file;
+
+                const { piece } = action.location;
+                if (fileChange > 0) {
+                    squares[6][pendingMove.rank - 1].piece = pendingMove.piece;
+                    squares[5][pendingMove.rank - 1].piece = piece;
+                }
+                else {
+                    squares[2][pendingMove.rank - 1].piece = pendingMove.piece;
+                    squares[3][pendingMove.rank - 1].piece = piece;
+                }
+                squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
+                squares[action.location.file - 1][action.location.rank - 1].piece = undefined;
+
+                turn = turn == Color.White ? Color.Black : Color.White;
+
                 return {
                     board: {
                         squares

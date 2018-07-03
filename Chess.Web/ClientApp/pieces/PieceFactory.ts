@@ -1,4 +1,4 @@
-import IPiece from './IPiece';
+import Piece from './Piece';
 import Color from './Color';
 import Pawn from './Pawn';
 import Rook from './Rook';
@@ -7,7 +7,7 @@ import Knight from './Knight';
 import Queen from './Queen';
 import King from './King';
 
-export function createPiece(name: string, moved: boolean, color: Color): IPiece | undefined {
+export function createPiece(name: string, moved: boolean, color: Color): Piece | undefined {
     switch (name) {
         case "Pawn": {
             return new Pawn(moved, color);

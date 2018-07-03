@@ -1,8 +1,8 @@
 import { Location } from '../store/Game';
-import IPiece from './IPiece';
+import Piece from './Piece';
 import Color from './Color';
 
-class Pawn implements IPiece {
+class Pawn implements Piece {
     private colorMultiplier: number;
     moved: boolean;
     color: Color;

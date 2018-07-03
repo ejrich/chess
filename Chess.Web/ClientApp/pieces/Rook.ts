@@ -1,9 +1,9 @@
 import { Location } from '../store/Game';
-import IPiece from './IPiece';
+import Piece from './Piece';
 import Color from './Color';
 import { isStraightMoveLegal } from './MoveHelper';
 
-class Rook implements IPiece {
+class Rook implements Piece {
     moved: boolean;
     color: Color;
 

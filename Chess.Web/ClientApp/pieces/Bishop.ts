@@ -1,9 +1,9 @@
 import { Location } from '../store/Game';
-import IPiece from './IPiece';
+import Piece from './Piece';
 import Color from './Color';
 import { isDiagonalMoveLegal } from './MoveHelper';
 
-class Bishop implements IPiece {
+class Bishop implements Piece {
     moved: boolean;
     color: Color;
 

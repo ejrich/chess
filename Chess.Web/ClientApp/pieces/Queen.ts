@@ -1,9 +1,9 @@
 import { Location } from '../store/Game';
-import IPiece from './IPiece';
+import Piece from './Piece';
 import Color from './Color';
 import { isDiagonalMoveLegal, isStraightMoveLegal } from './MoveHelper';
 
-class Queen implements IPiece {
+class Queen implements Piece {
     moved: boolean;
     color: Color;
 

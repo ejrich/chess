@@ -1,7 +1,7 @@
 import { Location } from '../store/Game';
 import Color from './Color';
 
-interface IPiece {
+interface Piece {
     moved: boolean;
     color: Color;
     // file: number;
@@ -10,4 +10,4 @@ interface IPiece {
     getImageName(): string;
 }
 
-export default IPiece;
+export default Piece;

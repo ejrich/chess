@@ -1,8 +1,8 @@
 import { Location } from '../store/Game';
-import IPiece from './IPiece';
+import Piece from './Piece';
 import Color from './Color';
 
-class King implements IPiece {
+class King implements Piece {
     moved: boolean;
     color: Color;
 

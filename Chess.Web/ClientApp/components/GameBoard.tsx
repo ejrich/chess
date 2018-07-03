@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState }  from '../store';
-import { Board, Location, actionCreators, GameState } from '../store/Game';
+import { Location, actionCreators, GameState } from '../store/Game';
+import { isCastle } from '../pieces/SpecialMoves';
 
 type GameBoardProps = GameState & typeof actionCreators;
 
@@ -12,15 +13,20 @@ const blackSquareStyle = {
 class GameBoard extends React.Component<GameBoardProps, {}> {
 
     private handleMove(location: Location) {
-        if (!this.props.pendingMove && location.piece && location.piece.color == this.props.turn) {
-            this.props.PendingMove(location);
+        const { board, pendingMove, turn, Castle, PendingMove, FinishMove } = this.props;
+
+        if (!pendingMove && location.piece && location.piece.color == turn) {
+            PendingMove(location);
         }
-        else if (this.props.pendingMove) {
-            if (location.piece && location.piece.color == this.props.turn) {
-                this.props.PendingMove(location);
+        else if (pendingMove) {
+            if (board && isCastle(pendingMove, location, board.squares)) {
+                Castle(location);
+            }
+            else if (location.piece && location.piece.color == turn) {
+                PendingMove(location);
             }
             else {
-                this.props.FinishMove(location);
+                FinishMove(location);
             }
         }
     }
@@ -34,13 +40,11 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
             );
         }
 
-        else {
-            return (
-                <div style={{ borderStyle: "solid", display: "inline-block" }}>
-                    { this.renderRanks(board.squares) }
-                </div>
-            );
-        }
+        return (
+            <div style={{ borderStyle: "solid", display: "inline-block" }}>
+                { this.renderRanks(board.squares) }
+            </div>
+        );
     }
 
     private renderRanks(squares: Location[][]) {
