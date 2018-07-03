@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState }  from '../store';
 import { Location, actionCreators, GameState } from '../store/Game';
-import { isCastle } from '../pieces/SpecialMoves';
+import { isCastle, isPromotion } from '../pieces/SpecialMoves';
 
 type GameBoardProps = GameState & typeof actionCreators;
 
@@ -13,14 +13,19 @@ const blackSquareStyle = {
 class GameBoard extends React.Component<GameBoardProps, {}> {
 
     private handleMove(location: Location) {
-        const { board, pendingMove, turn, Castle, PendingMove, FinishMove } = this.props;
+        const { board, pendingMove, turn, Castle, PendingMove, Promotion, FinishMove } = this.props;
+
+        if (!board) return;
 
         if (!pendingMove && location.piece && location.piece.color == turn) {
             PendingMove(location);
         }
         else if (pendingMove) {
-            if (board && isCastle(pendingMove, location, board.squares)) {
+            if (isCastle(pendingMove, location, board.squares)) {
                 Castle(location);
+            }
+            if (isPromotion(pendingMove, location, board.squares)) {
+                Promotion(location);
             }
             else if (location.piece && location.piece.color == turn) {
                 PendingMove(location);

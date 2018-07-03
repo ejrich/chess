@@ -4,6 +4,7 @@ import { AppThunkAction } from './';
 import Piece from '../pieces/Piece';
 import { createPiece } from '../pieces/PieceFactory';
 import Color from '../pieces/Color';
+import Queen from '../pieces/Queen';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -34,6 +35,7 @@ const GameInitializedAction = 'GAME_INITIALIZED';
 const BeginMoveAction = 'BEGIN_MOVE';
 const CompleteMoveAction = 'COMPLETE_MOVE';
 const CastleAction = 'CASTLE';
+const PromotionAction = 'PROMOTION';
 
 interface InitializeGame {
     type: 'INITIALIZE_GAME';
@@ -59,9 +61,14 @@ interface Castle {
     location: Location; 
 }
 
+interface Promotion {
+    type: 'PROMOTION';
+    location: Location; 
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle;
+type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -84,7 +91,9 @@ export const actionCreators = {
 
     FinishMove: (location: Location) => <CompleteMove>{ type: CompleteMoveAction, location },
 
-    Castle: (location: Location) => <Castle>{ type: CastleAction, location }
+    Castle: (location: Location) => <Castle>{ type: CastleAction, location },
+
+    Promotion: (location: Location) => <Promotion>{ type: PromotionAction, location }
 };
 
 function createBoard(data: any): Board {
@@ -176,6 +185,27 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
 
                 turn = turn == Color.White ? Color.Black : Color.White;
 
+                return {
+                    board: {
+                        squares
+                    },
+                    turn
+                }
+            }
+            break;
+        case PromotionAction:
+            var { board, pendingMove, turn } = state;
+            if (board && pendingMove && pendingMove.piece) {
+                const { squares } = board;
+
+                const legal = pendingMove.piece.isMoveLegal(pendingMove, action.location, squares);
+
+                if (legal) {
+                    pendingMove.piece.moved = true;
+                    squares[action.location.file - 1][action.location.rank - 1].piece = new Queen(true, turn);
+                    squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
+                    turn = turn == Color.White ? Color.Black : Color.White;
+                }
                 return {
                     board: {
                         squares

@@ -2,6 +2,8 @@ import { Location } from '../store/Game';
 import King from './King';
 import Rook from './Rook';
 import { isStraightMoveLegal } from './MoveHelper';
+import Pawn from './Pawn';
+import Color from './Color';
 
 export function isCastle(current: Location, move: Location, board: Location[][]): boolean {
     if (!current.piece || !move.piece) {
@@ -13,4 +15,14 @@ export function isCastle(current: Location, move: Location, board: Location[][])
     }
 
     return current.piece instanceof King && move.piece instanceof Rook && isStraightMoveLegal(current, move, board);
+}
+
+export function isPromotion(current: Location, move: Location, board: Location[][]): boolean {
+    if (!current.piece || !(current.piece instanceof Pawn)) {
+        return false;
+    }
+
+    const endRank = current.piece.color == Color.White ? 8 : 1;
+
+    return move.rank == endRank && current.piece.isMoveLegal(current, move, board);
 }
