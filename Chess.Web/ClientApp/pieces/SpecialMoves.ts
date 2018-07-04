@@ -31,7 +31,7 @@ export function isEnPassant(current: Location, move: Location, board: Location[]
         return false;
     }
 
-    const capturedPiece = board[move.file - 1][move.rank - 1 + colorFactor].piece;
+    const capturedPiece = board[move.file - 1][move.rank - 1 - colorFactor].piece;
 
     return capturedPiece instanceof Pawn && capturedPiece.moved; // TODO check moves == 1
 }

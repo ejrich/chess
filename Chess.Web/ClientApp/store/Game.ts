@@ -36,6 +36,7 @@ const BeginMoveAction = 'BEGIN_MOVE';
 const CompleteMoveAction = 'COMPLETE_MOVE';
 const CastleAction = 'CASTLE';
 const PromotionAction = 'PROMOTION';
+const EnPassantAction = 'EN_PASSANT';
 
 interface InitializeGame {
     type: 'INITIALIZE_GAME';
@@ -66,9 +67,14 @@ interface Promotion {
     location: Location; 
 }
 
+interface EnPassant {
+    type: 'EN_PASSANT';
+    location: Location; 
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion;
+type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion | EnPassant;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -93,7 +99,9 @@ export const actionCreators = {
 
     Castle: (location: Location) => <Castle>{ type: CastleAction, location },
 
-    Promotion: (location: Location) => <Promotion>{ type: PromotionAction, location }
+    Promotion: (location: Location) => <Promotion>{ type: PromotionAction, location },
+
+    EnPassant: (location: Location) => <EnPassant>{ type: EnPassantAction, location }
 };
 
 function createBoard(data: any): Board {
@@ -206,6 +214,27 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                     squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
                     turn = turn == Color.White ? Color.Black : Color.White;
                 }
+                return {
+                    board: {
+                        squares
+                    },
+                    turn
+                }
+            }
+            break;
+        case EnPassantAction:
+            var { board, pendingMove, turn } = state;
+            if (board && pendingMove && pendingMove.piece) {
+                const { squares } = board;
+
+                pendingMove.piece.moved = true;
+                squares[action.location.file - 1][action.location.rank - 1].piece = pendingMove.piece;
+                squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
+
+                const colorFactor = turn == Color.White ? 1 : -1;
+                squares[action.location.file - 1][action.location.rank - 1 - colorFactor].piece = undefined;
+                turn = turn == Color.White ? Color.Black : Color.White;
+
                 return {
                     board: {
                         squares
