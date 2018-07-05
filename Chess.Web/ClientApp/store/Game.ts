@@ -107,7 +107,7 @@ export const actionCreators = {
 function createBoard(data: any): Board {
     const squares = (<any[][]>data.squares).map(file => {
         return file.map(square => {
-            const piece = square.piece ? createPiece(square.piece.name, square.piece.moved, square.piece.color) : undefined;
+            const piece = square.piece ? createPiece(square.piece.name, square.piece.moves, square.piece.color) : undefined;
 
             return <Location>{
                 file: square.file,
@@ -156,7 +156,7 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 const legal = pendingMove.piece.isMoveLegal(pendingMove, action.location, squares);
 
                 if (legal) {
-                    pendingMove.piece.moved = true;
+                    pendingMove.piece.moves++;
                     squares[action.location.file - 1][action.location.rank - 1].piece = pendingMove.piece;
                     squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
                     turn = turn == Color.White ? Color.Black : Color.White;
@@ -174,8 +174,8 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
             if (board && pendingMove && pendingMove.piece && action.location.piece) {
                 const { squares } = board;
 
-                pendingMove.piece.moved = true;
-                action.location.piece.moved = true;
+                pendingMove.piece.moves++;
+                action.location.piece.moves++;
 
                 const fileChange = action.location.file - pendingMove.file;
 
@@ -209,8 +209,8 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 const legal = pendingMove.piece.isMoveLegal(pendingMove, action.location, squares);
 
                 if (legal) {
-                    pendingMove.piece.moved = true;
-                    squares[action.location.file - 1][action.location.rank - 1].piece = new Queen(true, turn);
+                    pendingMove.piece.moves++;
+                    squares[action.location.file - 1][action.location.rank - 1].piece = new Queen(pendingMove.piece.moves, turn);
                     squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
                     turn = turn == Color.White ? Color.Black : Color.White;
                 }
@@ -227,7 +227,7 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
             if (board && pendingMove && pendingMove.piece) {
                 const { squares } = board;
 
-                pendingMove.piece.moved = true;
+                pendingMove.piece.moves++;
                 squares[action.location.file - 1][action.location.rank - 1].piece = pendingMove.piece;
                 squares[pendingMove.file - 1][pendingMove.rank - 1].piece = undefined;
 

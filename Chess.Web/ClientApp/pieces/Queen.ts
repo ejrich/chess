@@ -4,11 +4,11 @@ import Color from './Color';
 import { isDiagonalMoveLegal, isStraightMoveLegal } from './MoveHelper';
 
 class Queen implements Piece {
-    moved: boolean;
     color: Color;
+    moves: number;
 
-    constructor(moved: boolean, color: Color) {
-        this.moved = moved;
+    constructor(moves: number, color: Color) {
+        this.moves = moves;
         this.color = color;
     }
 

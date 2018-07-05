@@ -33,7 +33,7 @@ namespace Chess.Game
             {
                 _chessBoard.SetLocation(null, currentFile, currentRank);
                 _chessBoard.SetLocation(piece, newFile, newRank);
-                piece.Moved = true;
+                piece.Moves++;
                 Turn = Turn == Color.White ? Color.Black : Color.White;
             }
 

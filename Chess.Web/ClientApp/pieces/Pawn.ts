@@ -4,11 +4,11 @@ import Color from './Color';
 
 class Pawn implements Piece {
     private colorMultiplier: number;
-    moved: boolean;
     color: Color;
+    moves: number;
 
-    constructor(moved: boolean, color: Color) {
-        this.moved = moved;
+    constructor(moves: number, color: Color) {
+        this.moves = moves;
         this.color = color;
         this.colorMultiplier = color == Color.White ? 1 : -1;
     }
@@ -33,7 +33,7 @@ class Pawn implements Piece {
             if (rankChange == 2)
             {
                 location = this.color == Color.White ? board[current.file - 1][current.rank] : board[current.file - 1][current.rank - 2];
-                legal = !this.moved && !location.piece;
+                legal = !this.moves && !location.piece;
             }
         }
         else if (fileChange == 1)
@@ -46,7 +46,6 @@ class Pawn implements Piece {
                     legal = !!newLocation.piece && newLocation.piece.color != this.color;
                 }
             }
-            // TODO Add en passant
         }
 
         return legal;

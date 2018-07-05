@@ -7,25 +7,25 @@ import Knight from './Knight';
 import Queen from './Queen';
 import King from './King';
 
-export function createPiece(name: string, moved: boolean, color: Color): Piece | undefined {
+export function createPiece(name: string, moves: number, color: Color): Piece | undefined {
     switch (name) {
         case "Pawn": {
-            return new Pawn(moved, color);
+            return new Pawn(moves, color);
         }
         case "Rook": {
-            return new Rook(moved, color);
+            return new Rook(moves, color);
         }
         case "Bishop": {
-            return new Bishop(moved, color);
+            return new Bishop(moves, color);
         }
         case "Knight": {
-            return new Knight(moved, color);
+            return new Knight(moves, color);
         }
         case "Queen": {
-            return new Queen(moved, color);
+            return new Queen(moves, color);
         }
         case "King": {
-            return new King(moved, color);
+            return new King(moves, color);
         }
     }
 }

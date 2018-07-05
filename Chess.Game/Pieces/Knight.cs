@@ -5,7 +5,7 @@ namespace Chess.Game.Pieces
 {
     public class Knight : IPiece
     {
-        public bool Moved { get; set; }
+        public int Moves { get; set; }
         public Color Color { get; set; }
 
         public IList<Location> GetLegalMoves(Location currentLocation)

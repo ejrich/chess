@@ -4,7 +4,7 @@ namespace Chess.Game.Pieces
 {
     public interface IPiece
     {
-        bool Moved { get; set; }
+        int Moves { get; set; }
         Color Color { get; set; }
 
         IList<Location> GetLegalMoves(Location currentLocation);

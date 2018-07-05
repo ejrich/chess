@@ -7,7 +7,7 @@ namespace Chess.Game.Pieces
     {
         private int _multiplier => Color == Color.White ? 1 : -1;
 
-        public bool Moved { get; set; }
+        public int Moves { get; set; }
         public Color Color { get; set; }
 
         public IList<Location> GetLegalMoves(Location currentLocation)
@@ -36,7 +36,7 @@ namespace Chess.Game.Pieces
                 if (rankChange == 2)
                 {
                     location = Color == Color.White ? location.Forward : location.Back;
-                    legal = !Moved && location.Piece == null;
+                    legal = Moves == 0 && location.Piece == null;
                 }
             }
             else if (fileChange == 1)

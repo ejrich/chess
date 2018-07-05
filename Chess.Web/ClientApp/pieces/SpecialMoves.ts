@@ -10,7 +10,7 @@ export function isCastle(current: Location, move: Location, board: Location[][])
         return false;
     }
 
-    if (current.piece.moved || move.piece.moved) {
+    if (current.piece.moves || move.piece.moves) {
         return false;
     }
 
@@ -18,22 +18,23 @@ export function isCastle(current: Location, move: Location, board: Location[][])
 }
 
 export function isEnPassant(current: Location, move: Location, board: Location[][]): boolean {
-    if (!current.piece || !(current.piece instanceof Pawn)) {
+    if (!current.piece || !(current.piece instanceof Pawn) || move.piece) {
         return false;
     }
 
     const colorFactor = current.piece.color == Color.White ? 1 : -1;
+    const pendingMoveRank = current.piece.color == Color.White ? 5 : 4;
 
     const fileChange = Math.abs(move.file - current.file);
     const rankChange = colorFactor * (move.rank - current.rank);
 
-    if (rankChange != 1 || fileChange != 1) {
+    if (rankChange != 1 || fileChange != 1 || current.rank != pendingMoveRank) {
         return false;
     }
 
     const capturedPiece = board[move.file - 1][move.rank - 1 - colorFactor].piece;
 
-    return capturedPiece instanceof Pawn && capturedPiece.moved; // TODO check moves == 1
+    return capturedPiece instanceof Pawn && capturedPiece.moves == 1;
 }
 
 export function isPromotion(current: Location, move: Location, board: Location[][]): boolean {

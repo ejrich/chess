@@ -3,11 +3,11 @@ import Piece from './Piece';
 import Color from './Color';
 
 class King implements Piece {
-    moved: boolean;
     color: Color;
+    moves: number;
 
-    constructor(moved: boolean, color: Color) {
-        this.moved = moved;
+    constructor(moves: number, color: Color) {
+        this.moves = moves;
         this.color = color;
     }
 
