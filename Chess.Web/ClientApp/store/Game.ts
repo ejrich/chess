@@ -5,6 +5,7 @@ import Piece from '../pieces/Piece';
 import { createPiece } from '../pieces/PieceFactory';
 import Color from '../pieces/Color';
 import Queen from '../pieces/Queen';
+import { createOutcomeRequest } from '../pieces/OutcomePredictor'
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -12,7 +13,8 @@ import Queen from '../pieces/Queen';
 export interface GameState {
     board?: Board;
     pendingMove?: Location;
-    turn: Color
+    turn: Color,
+    prediction?: number
     // TODO add players
 }
 
@@ -37,6 +39,8 @@ const CompleteMoveAction = 'COMPLETE_MOVE';
 const CastleAction = 'CASTLE';
 const PromotionAction = 'PROMOTION';
 const EnPassantAction = 'EN_PASSANT';
+const OutcomeFetch = 'OUTCOME_FETCH';
+const OutcomeAction = 'OUTCOME';
 
 interface InitializeGame {
     type: 'INITIALIZE_GAME';
@@ -72,9 +76,18 @@ interface EnPassant {
     location: Location; 
 }
 
+interface OutcomeFetch {
+    type: 'OUTCOME_FETCH'
+}
+
+interface Outcome{
+    type: 'OUTCOME';
+    prediction: number;
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion | EnPassant;
+type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion | EnPassant | OutcomeFetch | Outcome;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -101,7 +114,35 @@ export const actionCreators = {
 
     Promotion: (location: Location) => <Promotion>{ type: PromotionAction, location },
 
-    EnPassant: (location: Location) => <EnPassant>{ type: EnPassantAction, location }
+    EnPassant: (location: Location) => <EnPassant>{ type: EnPassantAction, location },
+
+    Outcome: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const board = getState().game.board;
+
+        if (!board) return;
+
+        const boardRequest = createOutcomeRequest(board);
+        console.log(boardRequest);
+
+        const options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(boardRequest)
+        };
+
+        console.log(options);
+        let fetchTask = fetch(`http://localhost:5000/prediction/linear`, options)
+            .then(response => response.json() as Promise<any>)
+            .then(data => {
+                console.log(data);
+                dispatch({ type: OutcomeAction, prediction: data.prediction });
+            });
+
+        addTask(fetchTask); // Ensure server-side prerendering waits for this to complete
+        dispatch({ type: OutcomeFetch });
+    },
 };
 
 function createBoard(data: any): Board {
@@ -148,6 +189,15 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 ...state,
                 pendingMove: action.location
             };
+        case OutcomeFetch:
+            console.log('Fetching...');
+            return state;
+        case OutcomeAction:
+            console.log('Received...');
+            return {
+                ...state,
+                prediction: action.prediction
+            }
         case CompleteMoveAction:
             var { board, pendingMove, turn } = state;
             if (board && pendingMove && pendingMove.piece) {

@@ -13,12 +13,14 @@ type GameProps =
 class Game extends React.Component<GameProps, {}> {
 
     public render() {
-        const { board, turn, InitializeGame } = this.props;
+        const { board, turn, prediction, InitializeGame } = this.props;
 
         return (
             <div>
                 <h1>Chess Game</h1>
                 <button className="btn" onClick={InitializeGame}>New Game</button>
+                <br/>
+                { prediction }
                 <br/>
                 {   
                     board ? <p>{ turn == Color.White ? "White" : "Black" }'s Turn</p> : <br/>

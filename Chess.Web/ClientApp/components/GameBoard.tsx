@@ -13,7 +13,7 @@ const blackSquareStyle = {
 class GameBoard extends React.Component<GameBoardProps, {}> {
 
     private handleMove(location: Location) {
-        const { board, pendingMove, turn, EnPassant, Castle, PendingMove, Promotion, FinishMove } = this.props;
+        const { board, pendingMove, turn, EnPassant, Castle, PendingMove, Promotion, FinishMove, Outcome } = this.props;
 
         if (!board) return;
 
@@ -36,11 +36,12 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
             else {
                 FinishMove(location);
             }
+            Outcome();
         }
     }
 
     public render() {
-        const { board } = this.props;
+        const { board, Outcome } = this.props;
 
         if (!board) {
             return (
