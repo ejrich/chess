@@ -13,6 +13,7 @@ namespace Chess.Web
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .UseUrls("http://localhost:5001/")
                 .Build();
     }
 }

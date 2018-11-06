@@ -50,7 +50,7 @@ class GameBoard extends React.Component<GameBoardProps, {}> {
         }
 
         return (
-            <div style={{ borderStyle: "solid", display: "inline-block" }}>
+            <div style={{ borderStyle: "solid", display: "inline-block", float: "left" }}>
                 { this.renderRanks(board.squares) }
             </div>
         );

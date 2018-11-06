@@ -12,15 +12,13 @@ class Predictions extends React.Component<PredictionsProps, {}> {
             return <div></div>;
         }
 
-        const models = [];
-
-        for (let model in predictions) {
-            models.push(<div className='col-sm-2'>{ model }: { predictions[model] }</div>);
-        }
-
         return (
-            <div className='row'>
-                { models }
+            <div>
+                {
+                    Object.keys(predictions).sort().map(model =>
+                        <div key={ model }><h3>{ model }:</h3><div>{ predictions[model] }</div></div>
+                    )
+                }
             </div>
         );
     }

@@ -18,14 +18,14 @@ class Game extends React.Component<GameProps, {}> {
 
         return (
             <div>
-                <h1>Chess Game</h1>
+                <br/>
                 <button className="btn" onClick={InitializeGame}>New Game</button>
                 <br/>
-                <Predictions predictions={predictions} />
                 {   
                     board ? <p>{ turn == Color.White ? "White" : "Black" }'s Turn</p> : <br/>
                 }
                 <GameBoard />
+                <Predictions predictions={predictions} />
             </div>
         );
     }

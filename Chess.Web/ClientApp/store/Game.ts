@@ -123,7 +123,6 @@ export const actionCreators = {
         if (!board) return;
 
         const boardRequest = createOutcomeRequest(board);
-        console.log(boardRequest);
 
         const options = {
             method: "POST",
