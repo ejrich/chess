@@ -14,7 +14,7 @@ export interface GameState {
     board?: Board;
     pendingMove?: Location;
     turn: Color,
-    prediction?: number
+    predictions?: { [id: string]: number }
     // TODO add players
 }
 
@@ -82,6 +82,7 @@ interface OutcomeFetch {
 
 interface Outcome{
     type: 'OUTCOME';
+    model: string;
     prediction: number;
 }
 
@@ -132,15 +133,28 @@ export const actionCreators = {
             body: JSON.stringify(boardRequest)
         };
 
-        console.log(options);
-        let fetchTask = fetch(`http://localhost:5000/prediction/linear`, options)
+        let fetchLinearTask = fetch(`http://localhost:5000/prediction/linear`, options)
             .then(response => response.json() as Promise<any>)
             .then(data => {
                 console.log(data);
-                dispatch({ type: OutcomeAction, prediction: data.prediction });
+                dispatch({ type: OutcomeAction, model: 'Linear Regression', prediction: data.prediction });
+            });
+        let fetchLogisticTask = fetch(`http://localhost:5000/prediction/logistic`, options)
+            .then(response => response.json() as Promise<any>)
+            .then(data => {
+                console.log(data);
+                dispatch({ type: OutcomeAction, model: 'Logistic Regression', prediction: data.prediction });
+            });
+        let fetchRandomForestTask = fetch(`http://localhost:5000/prediction/random_forest`, options)
+            .then(response => response.json() as Promise<any>)
+            .then(data => {
+                console.log(data);
+                dispatch({ type: OutcomeAction, model: 'Random Forest Regression', prediction: data.prediction });
             });
 
-        addTask(fetchTask); // Ensure server-side prerendering waits for this to complete
+        addTask(fetchLinearTask);
+        addTask(fetchLogisticTask);
+        addTask(fetchRandomForestTask);
         dispatch({ type: OutcomeFetch });
     },
 };
@@ -191,12 +205,18 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
             };
         case OutcomeFetch:
             console.log('Fetching...');
-            return state;
+            return {
+                ...state,
+                predictions: {}
+            };
         case OutcomeAction:
             console.log('Received...');
             return {
                 ...state,
-                prediction: action.prediction
+                predictions: {
+                    ...state.predictions,
+                    [action.model]: action.prediction
+                }
             }
         case CompleteMoveAction:
             var { board, pendingMove, turn } = state;
