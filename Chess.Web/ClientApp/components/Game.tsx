@@ -5,6 +5,7 @@ import { ApplicationState }  from '../store';
 import { GameState, actionCreators } from '../store/Game';
 import GameBoard from './GameBoard';
 import Predictions from './Predictions';
+import PredictedMove from './PredictedMove';
 import Color from '../pieces/Color';
 
 type GameProps =
@@ -14,7 +15,7 @@ type GameProps =
 class Game extends React.Component<GameProps, {}> {
 
     public render() {
-        const { board, turn, predictions, InitializeGame } = this.props;
+        const { board, turn, predictions, predictedMove, InitializeGame, Prediction } = this.props;
 
         return (
             <div>
@@ -24,6 +25,8 @@ class Game extends React.Component<GameProps, {}> {
                 {   
                     board ? <p>{ turn == Color.White ? "White" : "Black" }'s Turn</p> : <br/>
                 }
+                <PredictedMove predictedMove={predictedMove} action={Prediction} />
+                <br/>
                 <GameBoard />
                 <Predictions predictions={predictions} />
             </div>

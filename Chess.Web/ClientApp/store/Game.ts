@@ -14,7 +14,8 @@ export interface GameState {
     board?: Board;
     pendingMove?: Location;
     turn: Color,
-    predictions?: { [id: string]: number }
+    predictions?: { [id: string]: number },
+    predictedMove?: Move,
     // TODO add players
 }
 
@@ -26,6 +27,13 @@ export interface Location {
     file: number;
     rank: number;
     piece?: Piece;
+}
+
+export interface Move {
+    rank: number;
+    file: number;
+    moveRank: number;
+    moveFile: number;
 }
 
 // -----------------
@@ -41,6 +49,8 @@ const PromotionAction = 'PROMOTION';
 const EnPassantAction = 'EN_PASSANT';
 const OutcomeFetch = 'OUTCOME_FETCH';
 const OutcomeAction = 'OUTCOME';
+const PredictionFetch = 'PREDICTION_FETCH';
+const PredictionAction = 'PREDICTION';
 
 interface InitializeGame {
     type: 'INITIALIZE_GAME';
@@ -80,15 +90,27 @@ interface OutcomeFetch {
     type: 'OUTCOME_FETCH'
 }
 
-interface Outcome{
+interface Outcome {
     type: 'OUTCOME';
     model: string;
     prediction: number;
 }
 
+interface PredictionFetch {
+    type: 'PREDICTION_FETCH'
+}
+
+interface Prediction {
+    type: 'PREDICTION',
+    rank: number,
+    file: number,
+    moveRank: number,
+    moveFile: number
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion | EnPassant | OutcomeFetch | Outcome;
+type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion | EnPassant | OutcomeFetch | Outcome | PredictionFetch | Prediction;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -135,27 +157,61 @@ export const actionCreators = {
         let fetchLinearTask = fetch(`http://localhost:5000/prediction/linear`, options)
             .then(response => response.json() as Promise<any>)
             .then(data => {
-                console.log(data);
                 dispatch({ type: OutcomeAction, model: 'Linear Regression', prediction: data.prediction });
             });
-        let fetchLogisticTask = fetch(`http://localhost:5000/prediction/logistic`, options)
+        // let fetchLogisticTask = fetch(`http://localhost:5000/prediction/logistic`, options)
+        //     .then(response => response.json() as Promise<any>)
+        //     .then(data => {
+        //         dispatch({ type: OutcomeAction, model: 'Logistic Regression', prediction: data.prediction });
+        //     });
+        // let fetchRandomForestTask = fetch(`http://localhost:5000/prediction/random_forest`, options)
+        //     .then(response => response.json() as Promise<any>)
+        //     .then(data => {
+        //         dispatch({ type: OutcomeAction, model: 'Random Forest Regression', prediction: data.prediction });
+        //     });
+        // let deepLearningTask = fetch(`http://localhost:5000/prediction/dl_linear`, options)
+        //     .then(response => response.json() as Promise<any>)
+        //     .then(data => {
+        //         dispatch({ type: OutcomeAction, model: 'Deep Learning Linear with Dense Layers', prediction: data.prediction });
+        //     });
+        let convolutionTask = fetch(`http://localhost:5000/prediction/convolution`, options)
             .then(response => response.json() as Promise<any>)
             .then(data => {
-                console.log(data);
-                dispatch({ type: OutcomeAction, model: 'Logistic Regression', prediction: data.prediction });
-            });
-        let fetchRandomForestTask = fetch(`http://localhost:5000/prediction/random_forest`, options)
-            .then(response => response.json() as Promise<any>)
-            .then(data => {
-                console.log(data);
-                dispatch({ type: OutcomeAction, model: 'Random Forest Regression', prediction: data.prediction });
+                dispatch({ type: OutcomeAction, model: 'Convolutional Neural Network', prediction: data.prediction });
             });
 
         addTask(fetchLinearTask);
-        addTask(fetchLogisticTask);
-        addTask(fetchRandomForestTask);
+        // addTask(fetchLogisticTask);
+        // addTask(fetchRandomForestTask);
+        // addTask(deepLearningTask);
+        addTask(convolutionTask);
         dispatch({ type: OutcomeFetch });
     },
+
+    Prediction: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const board = getState().game.board;
+
+        if (!board) return;
+
+        const boardRequest = createOutcomeRequest(board);
+
+        const options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(boardRequest)
+        };
+
+        let moveTask = fetch(`http://localhost:5000/prediction/move`, options)
+            .then(response => response.json() as Promise<any>)
+            .then(data => {
+                dispatch({ type: PredictionAction, rank: data.rank, file: data.file, moveRank: data.moveRank, moveFile: data.moveFile });
+            });
+
+        addTask(moveTask);
+        dispatch({ type: PredictionFetch });
+    }
 };
 
 function createBoard(data: any): Board {
@@ -215,6 +271,23 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 predictions: {
                     ...state.predictions,
                     [action.model]: action.prediction
+                }
+            }
+        case PredictionFetch:
+            console.log('Fetching...');
+            return {
+                ...state,
+                predictedMove: undefined
+            };
+        case PredictionAction:
+            console.log('Received...');
+            return {
+                ...state,
+                predictedMove: {
+                    rank: action.rank,
+                    file: action.file,
+                    moveRank: action.moveRank,
+                    moveFile: action.moveFile,
                 }
             }
         case CompleteMoveAction:
