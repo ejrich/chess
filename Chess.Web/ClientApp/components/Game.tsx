@@ -15,7 +15,7 @@ type GameProps =
 class Game extends React.Component<GameProps, {}> {
 
     public render() {
-        const { board, turn, predictions, predictedMove, InitializeGame, Prediction } = this.props;
+        const { board, models, turn, predictions, predictedMove, InitializeGame, Prediction, SetModel } = this.props;
 
         return (
             <div>
@@ -28,7 +28,7 @@ class Game extends React.Component<GameProps, {}> {
                 <PredictedMove predictedMove={predictedMove} action={Prediction} />
                 <br/>
                 <GameBoard />
-                <Predictions predictions={predictions} />
+                <Predictions predictions={predictions} setModel={SetModel} models={models} />
             </div>
         );
     }

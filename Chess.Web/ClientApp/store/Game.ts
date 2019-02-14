@@ -16,6 +16,7 @@ export interface GameState {
     turn: Color,
     predictions?: { [id: string]: number },
     predictedMove?: Move,
+    models: { [model: string]: string },
     // TODO add players
 }
 
@@ -51,6 +52,7 @@ const OutcomeFetch = 'OUTCOME_FETCH';
 const OutcomeAction = 'OUTCOME';
 const PredictionFetch = 'PREDICTION_FETCH';
 const PredictionAction = 'PREDICTION';
+const SetModelAction = 'SET_MODEL';
 
 interface InitializeGame {
     type: 'INITIALIZE_GAME';
@@ -108,9 +110,15 @@ interface Prediction {
     moveFile: number
 }
 
+interface SetModel {
+    type: 'SET_MODEL',
+    model: string,
+    endpoint: string
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion | EnPassant | OutcomeFetch | Outcome | PredictionFetch | Prediction;
+type KnownAction = InitializeGame | GameInitialized | BeginMove | CompleteMove | Castle | Promotion | EnPassant | OutcomeFetch | Outcome | PredictionFetch | Prediction | SetModel;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -154,37 +162,17 @@ export const actionCreators = {
             body: JSON.stringify(boardRequest)
         };
 
-        let fetchLinearTask = fetch(`http://localhost:5000/prediction/linear`, options)
-            .then(response => response.json() as Promise<any>)
-            .then(data => {
-                dispatch({ type: OutcomeAction, model: 'Linear Regression', prediction: data.prediction });
-            });
-        // let fetchLogisticTask = fetch(`http://localhost:5000/prediction/logistic`, options)
-        //     .then(response => response.json() as Promise<any>)
-        //     .then(data => {
-        //         dispatch({ type: OutcomeAction, model: 'Logistic Regression', prediction: data.prediction });
-        //     });
-        // let fetchRandomForestTask = fetch(`http://localhost:5000/prediction/random_forest`, options)
-        //     .then(response => response.json() as Promise<any>)
-        //     .then(data => {
-        //         dispatch({ type: OutcomeAction, model: 'Random Forest Regression', prediction: data.prediction });
-        //     });
-        // let deepLearningTask = fetch(`http://localhost:5000/prediction/dl_linear`, options)
-        //     .then(response => response.json() as Promise<any>)
-        //     .then(data => {
-        //         dispatch({ type: OutcomeAction, model: 'Deep Learning Linear with Dense Layers', prediction: data.prediction });
-        //     });
-        let convolutionTask = fetch(`http://localhost:5000/prediction/convolution`, options)
-            .then(response => response.json() as Promise<any>)
-            .then(data => {
-                dispatch({ type: OutcomeAction, model: 'Convolutional Neural Network', prediction: data.prediction });
-            });
+        const models = getState().game.models;
+        for (let model in models) {
+            let fetchTask = fetch(`http://localhost:5000/prediction/${models[model]}`, options)
+                .then(response => response.json() as Promise<any>)
+                .then(data => {
+                    dispatch({ type: OutcomeAction, model, prediction: data.prediction });
+                });
 
-        addTask(fetchLinearTask);
-        // addTask(fetchLogisticTask);
-        // addTask(fetchRandomForestTask);
-        // addTask(deepLearningTask);
-        addTask(convolutionTask);
+            addTask(fetchTask);
+        }
+
         dispatch({ type: OutcomeFetch });
     },
 
@@ -211,7 +199,9 @@ export const actionCreators = {
 
         addTask(moveTask);
         dispatch({ type: PredictionFetch });
-    }
+    },
+
+    SetModel: (model: string, endpoint: string) => <SetModel>{ type: SetModelAction, model, endpoint }
 };
 
 function createBoard(data: any): Board {
@@ -239,7 +229,8 @@ function createBoard(data: any): Board {
 
 const unloadedState: GameState = { 
     board: undefined,
-    turn: Color.White
+    turn: Color.White,
+    models: {}
 };
 
 export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Action) => {
@@ -258,6 +249,26 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 ...state,
                 pendingMove: action.location
             };
+        case SetModelAction:
+            if (state.models[action.model]) {
+                const models = {
+                    ...state.models
+                }
+                delete models[action.model]
+
+                return {
+                    ...state,
+                    models
+                };
+            }
+            else
+                return {
+                    ...state,
+                    models: {
+                        ...state.models,
+                        [action.model]: action.endpoint
+                    }
+                };
         case OutcomeFetch:
             console.log('Fetching...');
             return {
@@ -304,6 +315,7 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                     turn = turn == Color.White ? Color.Black : Color.White;
                 }
                 return {
+                    ...state,
                     board: {
                         squares
                     },
@@ -336,6 +348,7 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 turn = turn == Color.White ? Color.Black : Color.White;
 
                 return {
+                    ...state,
                     board: {
                         squares
                     },
@@ -357,6 +370,7 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                     turn = turn == Color.White ? Color.Black : Color.White;
                 }
                 return {
+                    ...state,
                     board: {
                         squares
                     },
@@ -378,6 +392,7 @@ export const reducer: Reducer<GameState> = (state: GameState, incomingAction: Ac
                 turn = turn == Color.White ? Color.Black : Color.White;
 
                 return {
+                    ...state,
                     board: {
                         squares
                     },
