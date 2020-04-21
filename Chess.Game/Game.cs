@@ -1,94 +1,43 @@
-﻿using Chess.Game.Pieces;
+﻿using Chess.Game.Board;
 
 namespace Chess.Game
 {
     public class Game
     {
-        private readonly int _boardSize = 8;
-        private readonly Location[,] _board;
+        private readonly IBoardFactory _boardFactory;
+        private readonly ChessBoard _chessBoard;
 
-        public Game()
+        public Game(IBoardFactory boardFactory)
         {
-            _board = new Location[_boardSize,_boardSize];
+            _boardFactory = boardFactory;
 
-            InitializeBoard();
-            InitializePieces();
-        }
-
-        private void InitializeBoard()
-        {
-            for (var rank = 1; rank <= _boardSize; rank++)
-            {
-                for (var file = 1; file <= _boardSize; file++)
-                {
-                    _board[rank - 1, file - 1] = new Location
-                    {
-                        Rank = rank,
-                        File = file
-                    };
-                }
-            }
-        }
-
-        private void InitializePieces()
-        {
-            var rank = 1;
-            for (var file = 1; file <= _boardSize; file++)
-            {
-                _board[rank, file - 1].Piece = new Pawn
-                {
-                    Color = Color.White
-                };
-            }
-
-            rank = 6;
-            for (var file = 1; file <= _boardSize; file++)
-            {
-                _board[rank, file - 1].Piece = new Pawn
-                {
-                    Color = Color.Black
-                };
-            }
-
-            rank = 0;
-            for (var file = 1; file <= _boardSize; file++)
-            {
-                if (file % 7 == 1)
-                {
-                    _board[rank, file - 1].Piece = new Rook
-                    {
-                        Color = Color.White
-                    };
-                }
-                if (file % 7 == 1)
-                {
-                    _board[rank, file - 1].Piece = new Knight
-                    {
-                        Color = Color.White
-                    };
-                }
-            }
-
-            rank = 7;
-            for (var file = 1; file <= _boardSize; file++)
-            {
-                if (file % 7 == 1)
-                {
-                    _board[rank, file - 1].Piece = new Rook
-                    {
-                        Color = Color.White
-                    };
-                }
-            }
+            _chessBoard = _boardFactory.CreateBoard();
         }
 
         public Player White { get; set; }
         public Player Black { get; set; }
-        public Color Turn { get; set; }
+        public Color Turn { get; set; } = Color.White;
 
-        public void TakeTurn(IPiece piece, Location location)
+        public bool TakeTurn(Files currentFile, int currentRank, Files newFile, int newRank)
         {
-            
+            var currentLocation = _chessBoard.GetLocation(currentFile, currentRank);
+            var newLocation = _chessBoard.GetLocation(newFile, newRank);
+            var piece = currentLocation.Piece;
+
+            if (piece == null || piece.Color != Turn)
+                return false;
+
+            var isLegal = piece.IsMoveLegal(currentLocation, newLocation);
+
+            if (isLegal)
+            {
+                _chessBoard.SetLocation(null, currentFile, currentRank);
+                _chessBoard.SetLocation(piece, newFile, newRank);
+                piece.Moves++;
+                Turn = Turn == Color.White ? Color.Black : Color.White;
+            }
+
+            return isLegal;
         }
     }
 }
